@@ -1,0 +1,1 @@
+[{"critical":{"identity":{"docker-reference":"588738572310.dkr.ecr.us-east-1.amazonaws.com/geofort-repo@sha256:714427e93c33f254b7ce4700dbd4b11db872c6483dbf954dda3e02b32ba94f59"},"image":{"docker-manifest-digest":"sha256:714427e93c33f254b7ce4700dbd4b11db872c6483dbf954dda3e02b32ba94f59"},"type":"https://sigstore.dev/cosign/sign/v1"},"optional":{}}]
