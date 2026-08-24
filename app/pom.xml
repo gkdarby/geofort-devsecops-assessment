@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+           http://maven.apache.org/POM/4.0.0
+           https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.geofort</groupId>
+    <artifactId>geofort-global-dynamic</artifactId>
+    <version>1.0.0</version>
+    <packaging>war</packaging>
+
+    <name>GeoFort Global Dynamic</name>
+
+    <description>
+        Dynamic Java Servlet web application with MySQL
+        database integration
+    </description>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>
+            UTF-8
+        </project.build.sourceEncoding>
+
+        <junit.version>5.11.4</junit.version>
+        <mockito.version>5.14.2</mockito.version>
+        <servlet.version>6.0.0</servlet.version>
+        <mysql.version>9.1.0</mysql.version>
+
+        <compiler.plugin.version>
+            3.13.0
+        </compiler.plugin.version>
+
+        <jacoco.version>0.8.12</jacoco.version>
+        <pmd.version>3.26.0</pmd.version>
+        <checkstyle.version>3.6.0</checkstyle.version>
+        <war.plugin.version>3.4.0</war.plugin.version>
+        <surefire.version>3.5.2</surefire.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- Servlet API is provided by Tomcat at runtime. -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- MySQL JDBC driver. -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- JUnit 5 testing framework. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito support for servlet unit tests. -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>geofort-global-dynamic</finalName>
+
+        <plugins>
+
+            <!-- Compile the application using Java 21. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>
+                    ${compiler.plugin.version}
+                </version>
+
+                <configuration>
+                    <release>
+                        ${maven.compiler.release}
+                    </release>
+                </configuration>
+            </plugin>
+
+            <!-- Build the deployable WAR file. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${war.plugin.version}</version>
+
+                <configuration>
+                    <failOnMissingWebXml>
+                        false
+                    </failOnMissingWebXml>
+                </configuration>
+            </plugin>
+
+            <!-- Run JUnit and Mockito unit tests. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+
+            <!-- Generate JaCoCo code coverage reports. -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+
+                <executions>
+                    <execution>
+                        <id>prepare-jacoco-agent</id>
+
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>verify</phase>
+
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Run PMD static code analysis. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${pmd.version}</version>
+
+                <configuration>
+                    <targetJdk>21</targetJdk>
+                    <printFailingErrors>
+                        true
+                    </printFailingErrors>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+            </plugin>
+
+            <!-- Generate the Checkstyle analysis report. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>
+                    maven-checkstyle-plugin
+                </artifactId>
+                <version>${checkstyle.version}</version>
+
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

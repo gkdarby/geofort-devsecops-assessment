@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-nginx
+  namespace: geofort-app
+  labels:
+    app: secure-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-nginx
+  template:
+    metadata:
+      labels:
+        app: secure-nginx
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      containers:
+        - name: secure-nginx
+          image: nginxinc/nginx-unprivileged:stable-alpine
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secure-nginx-svc
+  namespace: geofort-app
+spec:
+  type: ClusterIP
+  selector:
+    app: secure-nginx
+  ports:
+    - port: 8080
+      targetPort: 8080

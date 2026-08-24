@@ -1,0 +1,34 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-geofort-ecr-image-signature
+spec:
+  validationFailureAction: Enforce
+  background: false
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
+  rules:
+    - name: verify-geofort-ecr-signature
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - geofort-app
+      verifyImages:
+        - imageReferences:
+            - "588738572310.dkr.ecr.us-east-1.amazonaws.com/geofort-repo:*"
+          mutateDigest: true
+          verifyDigest: true
+          required: true
+          type: Cosign
+          imageRegistryCredentials:
+            secrets:
+              - ecr-registry-secret
+          attestors:
+            - entries:
+                - keys:
+                    secret:
+                      name: cosign-public-key
+                      namespace: kyverno

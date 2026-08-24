@@ -1,0 +1,22 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-nonroot
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-run-as-nonroot
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - geofort-app
+      validate:
+        message: "Pods in geofort-app must run as non-root."
+        pattern:
+          spec:
+            securityContext:
+              runAsNonRoot: true

@@ -1,0 +1,253 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #ffffff;
+    background-color: #00152f;
+}
+
+.home-page {
+    background:
+        linear-gradient(
+            rgba(0, 20, 45, 0.72),
+            rgba(0, 20, 45, 0.84)
+        ),
+        url("../images/home-background.png")
+        center center / cover no-repeat fixed;
+}
+
+.contact-page {
+    background:
+        linear-gradient(
+            rgba(0, 20, 45, 0.72),
+            rgba(0, 20, 45, 0.86)
+        ),
+        url("../images/contact-background.png")
+        center center / cover no-repeat fixed;
+}
+
+.service-page {
+    background-color: #00152f;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.hero {
+    text-align: center;
+    background-color: rgba(0, 20, 50, 0.78);
+}
+
+.hero-overlay {
+    padding: 42px 20px;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: 52px;
+    line-height: 1.15;
+}
+
+.hero p {
+    margin: 14px 0 0;
+    font-size: 20px;
+}
+
+.navigation {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 20px;
+    background-color: rgba(0, 12, 34, 0.88);
+}
+
+.navigation a {
+    display: inline-block;
+    padding: 13px 22px;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: bold;
+    text-decoration: none;
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #06b6d4
+    );
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.navigation a:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    padding: 80px 20px;
+}
+
+.about-card,
+.contact-card {
+    width: min(820px, 100%);
+    padding: 38px;
+    border: 1px solid #38bdf8;
+    border-radius: 14px;
+    background-color: rgba(0, 20, 45, 0.90);
+}
+
+.about-card {
+    text-align: center;
+}
+
+.about-card h2,
+.contact-card h2 {
+    margin-top: 0;
+    font-size: 34px;
+    text-align: center;
+}
+
+.about-card p {
+    margin-bottom: 0;
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+.contact-content {
+    padding-top: 72px;
+    padding-bottom: 72px;
+}
+
+.contact-card {
+    max-width: 740px;
+}
+
+.contact-introduction {
+    margin: 0 0 28px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 16px;
+    color: #111827;
+    background-color: #f8fafc;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: 2px solid #38bdf8;
+    outline-offset: 1px;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+.submit-button {
+    width: 100%;
+    border: 0;
+    border-radius: 6px;
+    padding: 14px 18px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #06b6d4
+    );
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.submit-button:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.success-message {
+    margin-bottom: 24px;
+    border: 1px solid #22c55e;
+    border-radius: 6px;
+    padding: 12px 14px;
+    color: #dcfce7;
+    text-align: center;
+    background-color: rgba(22, 101, 52, 0.55);
+}
+
+footer {
+    padding: 22px;
+    text-align: center;
+    background-color: rgba(0, 12, 34, 0.92);
+}
+
+@media (max-width: 700px) {
+    .hero h1 {
+        font-size: 36px;
+    }
+
+    .hero p {
+        font-size: 17px;
+    }
+
+    .navigation {
+        gap: 10px;
+    }
+
+    .navigation a {
+        padding: 11px 15px;
+    }
+
+    .content {
+        padding: 50px 15px;
+    }
+
+    .about-card,
+    .contact-card {
+        padding: 28px 20px;
+    }
+
+    .about-card h2,
+    .contact-card h2 {
+        font-size: 28px;
+    }
+}

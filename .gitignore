@@ -1,0 +1,20 @@
+# Java
+target/
+*.class
+*.war
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Secrets
+*.key
+*.pem
+cosign.key
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
