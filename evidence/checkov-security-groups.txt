@@ -1,0 +1,506 @@
+
+
+       _               _
+   ___| |__   ___  ___| | _______   __
+  / __| '_ \ / _ \/ __| |/ / _ \ \ / /
+ | (__| | | |  __/ (__|   < (_) \ V /
+  \___|_| |_|\___|\___|_|\_\___/ \_/
+
+By Prisma Cloud | version: 3.2.532 
+Update available 3.2.532 -> 3.3.13
+Run pip3 install -U checkov to update 
+
+
+terraform scan results:
+
+Passed checks: 24, Failed checks: 11, Skipped checks: 0
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.eice_security_group
+	File: \sg.tf:3-18
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+[0mCheck: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.eice_security_group
+	File: \sg.tf:3-18
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+[0mCheck: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.eice_security_group
+	File: \sg.tf:3-18
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+[0mCheck: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	PASSED for resource: aws_security_group.eice_security_group
+	File: \sg.tf:3-18
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+[0mCheck: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.eice_security_group
+	File: \sg.tf:3-18
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+[0mCheck: CKV_AWS_23: "Ensure every security group and rule has a description"
+	PASSED for resource: aws_security_group.alb_security_group
+	File: \sg.tf:23-55
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+[0mCheck: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.alb_security_group
+	File: \sg.tf:23-55
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+[0mCheck: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.alb_security_group
+	File: \sg.tf:23-55
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+[0mCheck: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.alb_security_group
+	File: \sg.tf:23-55
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+[0mCheck: CKV_AWS_23: "Ensure every security group and rule has a description"
+	PASSED for resource: aws_security_group.app_server_security_group
+	File: \sg.tf:59-99
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+[0mCheck: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.app_server_security_group
+	File: \sg.tf:59-99
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+[0mCheck: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.app_server_security_group
+	File: \sg.tf:59-99
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+[0mCheck: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	PASSED for resource: aws_security_group.app_server_security_group
+	File: \sg.tf:59-99
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+[0mCheck: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.app_server_security_group
+	File: \sg.tf:59-99
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+[0mCheck: CKV_AWS_23: "Ensure every security group and rule has a description"
+	PASSED for resource: aws_security_group.db_migrate_server_security_group
+	File: \sg.tf:104-128
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+[0mCheck: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.db_migrate_server_security_group
+	File: \sg.tf:104-128
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+[0mCheck: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.db_migrate_server_security_group
+	File: \sg.tf:104-128
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+[0mCheck: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	PASSED for resource: aws_security_group.db_migrate_server_security_group
+	File: \sg.tf:104-128
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+[0mCheck: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.db_migrate_server_security_group
+	File: \sg.tf:104-128
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+[0mCheck: CKV_AWS_23: "Ensure every security group and rule has a description"
+	PASSED for resource: aws_security_group.database_security_group
+	File: \sg.tf:133-165
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+[0mCheck: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.database_security_group
+	File: \sg.tf:133-165
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+[0mCheck: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.database_security_group
+	File: \sg.tf:133-165
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+[0mCheck: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	PASSED for resource: aws_security_group.database_security_group
+	File: \sg.tf:133-165
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+[0mCheck: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.database_security_group
+	File: \sg.tf:133-165
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+[0mCheck: CKV_AWS_23: "Ensure every security group and rule has a description"
+	FAILED for resource: aws_security_group.eice_security_group
+	File: \sg.tf:3-18
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+[0m
+		[37m3  | [33mresource "aws_security_group" "eice_security_group" {
+		[37m4  | [33m  name        = "${var.project_name}-EICE-SG"
+		[37m5  | [33m  description = "Outbound SSH to VPC CIDR"
+		[37m6  | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m7  | [33m
+		[37m8  | [33m  egress {
+		[37m9  | [33m    from_port   = 22
+		[37m10 | [33m    to_port     = 22
+		[37m11 | [33m    protocol    = "tcp"
+		[37m12 | [33m    cidr_blocks = [var.vpc_cidr]
+		[37m13 | [33m  }
+		[37m14 | [33m
+		[37m15 | [33m  tags = {
+		[37m16 | [33m    Name = "${var.project_name}-EICE-SG"
+		[37m17 | [33m  }
+		[37m18 | [33m}
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.alb_security_group
+	File: \sg.tf:23-55
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+[0m
+		[37m23 | [33mresource "aws_security_group" "alb_security_group" {
+		[37m24 | [33m  name        = "${var.project_name}-ALB-SG"
+		[37m25 | [33m  description = "HTTP/HTTPS from internet"
+		[37m26 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m27 | [33m
+		[37m28 | [33m  ingress {
+		[37m29 | [33m    description = "HTTP"
+		[37m30 | [33m    from_port   = 80
+		[37m31 | [33m    to_port     = 80
+		[37m32 | [33m    protocol    = "tcp"
+		[37m33 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m34 | [33m  }
+		[37m35 | [33m
+		[37m36 | [33m  ingress {
+		[37m37 | [33m    description = "HTTPS"
+		[37m38 | [33m    from_port   = 443
+		[37m39 | [33m    to_port     = 443
+		[37m40 | [33m    protocol    = "tcp"
+		[37m41 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m42 | [33m  }
+		[37m43 | [33m
+		[37m44 | [33m  egress {
+		[37m45 | [33m    description = "Allow all outbound traffic"
+		[37m46 | [33m    from_port   = 0
+		[37m47 | [33m    to_port     = 0
+		[37m48 | [33m    protocol    = "-1"
+		[37m49 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m50 | [33m  }
+		[37m51 | [33m
+		[37m52 | [33m  tags = {
+		[37m53 | [33m    Name = "${var.project_name}-ALB-SG"
+		[37m54 | [33m  }
+		[37m55 | [33m}
+
+Check: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	FAILED for resource: aws_security_group.alb_security_group
+	File: \sg.tf:23-55
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+[0m
+		[37m23 | [33mresource "aws_security_group" "alb_security_group" {
+		[37m24 | [33m  name        = "${var.project_name}-ALB-SG"
+		[37m25 | [33m  description = "HTTP/HTTPS from internet"
+		[37m26 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m27 | [33m
+		[37m28 | [33m  ingress {
+		[37m29 | [33m    description = "HTTP"
+		[37m30 | [33m    from_port   = 80
+		[37m31 | [33m    to_port     = 80
+		[37m32 | [33m    protocol    = "tcp"
+		[37m33 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m34 | [33m  }
+		[37m35 | [33m
+		[37m36 | [33m  ingress {
+		[37m37 | [33m    description = "HTTPS"
+		[37m38 | [33m    from_port   = 443
+		[37m39 | [33m    to_port     = 443
+		[37m40 | [33m    protocol    = "tcp"
+		[37m41 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m42 | [33m  }
+		[37m43 | [33m
+		[37m44 | [33m  egress {
+		[37m45 | [33m    description = "Allow all outbound traffic"
+		[37m46 | [33m    from_port   = 0
+		[37m47 | [33m    to_port     = 0
+		[37m48 | [33m    protocol    = "-1"
+		[37m49 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m50 | [33m  }
+		[37m51 | [33m
+		[37m52 | [33m  tags = {
+		[37m53 | [33m    Name = "${var.project_name}-ALB-SG"
+		[37m54 | [33m  }
+		[37m55 | [33m}
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.app_server_security_group
+	File: \sg.tf:59-99
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+[0m
+		[37m59 | [33mresource "aws_security_group" "app_server_security_group" {
+		[37m60 | [33m  name        = "${var.environment}-${var.project_name}-WEB-SG"
+		[37m61 | [33m  description = "HTTP/HTTPS from ALB, SSH from EICE"
+		[37m62 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m63 | [33m
+		[37m64 | [33m  ingress {
+		[37m65 | [33m    description     = "SSH from EICE"
+		[37m66 | [33m    from_port       = 22
+		[37m67 | [33m    to_port         = 22
+		[37m68 | [33m    protocol        = "tcp"
+		[37m69 | [33m    security_groups = [aws_security_group.eice_security_group.id]
+		[37m70 | [33m  }
+		[37m71 | [33m
+		[37m72 | [33m  ingress {
+		[37m73 | [33m    description     = "HTTP from ALB"
+		[37m74 | [33m    from_port       = 80
+		[37m75 | [33m    to_port         = 80
+		[37m76 | [33m    protocol        = "tcp"
+		[37m77 | [33m    security_groups = [aws_security_group.alb_security_group.id]
+		[37m78 | [33m  }
+		[37m79 | [33m
+		[37m80 | [33m  ingress {
+		[37m81 | [33m    description     = "HTTPS from ALB"
+		[37m82 | [33m    from_port       = 443
+		[37m83 | [33m    to_port         = 443
+		[37m84 | [33m    protocol        = "tcp"
+		[37m85 | [33m    security_groups = [aws_security_group.alb_security_group.id]
+		[37m86 | [33m  }
+		[37m87 | [33m
+		[37m88 | [33m  egress {
+		[37m89 | [33m    description = "Allow all outbound traffic"
+		[37m90 | [33m    from_port   = 0
+		[37m91 | [33m    to_port     = 0
+		[37m92 | [33m    protocol    = "-1"
+		[37m93 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m94 | [33m  }
+		[37m95 | [33m
+		[37m96 | [33m  tags = {
+		[37m97 | [33m    Name = "${var.project_name}-AppServ-SG"
+		[37m98 | [33m  }
+		[37m99 | [33m}
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.db_migrate_server_security_group
+	File: \sg.tf:104-128
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+[0m
+		[37m104 | [33mresource "aws_security_group" "db_migrate_server_security_group" {
+		[37m105 | [33m  name        = "${var.project_name}-DB-Migrate-Server-SG"
+		[37m106 | [33m  description = "SSH from EICE"
+		[37m107 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m108 | [33m
+		[37m109 | [33m  ingress {
+		[37m110 | [33m    description     = "SSH from EICE"
+		[37m111 | [33m    from_port       = 22
+		[37m112 | [33m    to_port         = 22
+		[37m113 | [33m    protocol        = "tcp"
+		[37m114 | [33m    security_groups = [aws_security_group.eice_security_group.id]
+		[37m115 | [33m  }
+		[37m116 | [33m
+		[37m117 | [33m  egress {
+		[37m118 | [33m    description = "Allow all outbound traffic"
+		[37m119 | [33m    from_port   = 0
+		[37m120 | [33m    to_port     = 0
+		[37m121 | [33m    protocol    = "-1"
+		[37m122 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m123 | [33m  }
+		[37m124 | [33m
+		[37m125 | [33m  tags = {
+		[37m126 | [33m    Name = "${var.project_name}-MigServ-SG"
+		[37m127 | [33m  }
+		[37m128 | [33m}
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.database_security_group
+	File: \sg.tf:133-165
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+[0m
+		[37m133 | [33mresource "aws_security_group" "database_security_group" {
+		[37m134 | [33m  name        = "${var.project_name}-Database-SG"
+		[37m135 | [33m  description = "MySQL/Aurora from app and migration servers"
+		[37m136 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m137 | [33m
+		[37m138 | [33m  ingress {
+		[37m139 | [33m    description     = "MySQL/Aurora from app servers"
+		[37m140 | [33m    from_port       = 3306
+		[37m141 | [33m    to_port         = 3306
+		[37m142 | [33m    protocol        = "tcp"
+		[37m143 | [33m    security_groups = [aws_security_group.app_server_security_group.id]
+		[37m144 | [33m  }
+		[37m145 | [33m
+		[37m146 | [33m  ingress {
+		[37m147 | [33m    description     = "MySQL/Aurora from migration server"
+		[37m148 | [33m    from_port       = 3306
+		[37m149 | [33m    to_port         = 3306
+		[37m150 | [33m    protocol        = "tcp"
+		[37m151 | [33m    security_groups = [aws_security_group.db_migrate_server_security_group.id]
+		[37m152 | [33m  }
+		[37m153 | [33m
+		[37m154 | [33m  egress {
+		[37m155 | [33m    description = "Allow all outbound traffic"
+		[37m156 | [33m    from_port   = 0
+		[37m157 | [33m    to_port     = 0
+		[37m158 | [33m    protocol    = "-1"
+		[37m159 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m160 | [33m  }
+		[37m161 | [33m
+		[37m162 | [33m  tags = {
+		[37m163 | [33m    Name = "${var.project_name}-DB-SG"
+		[37m164 | [33m  }
+		[37m165 | [33m}
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.eice_security_group
+	File: \sg.tf:3-18
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+[0m
+		[37m3  | [33mresource "aws_security_group" "eice_security_group" {
+		[37m4  | [33m  name        = "${var.project_name}-EICE-SG"
+		[37m5  | [33m  description = "Outbound SSH to VPC CIDR"
+		[37m6  | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m7  | [33m
+		[37m8  | [33m  egress {
+		[37m9  | [33m    from_port   = 22
+		[37m10 | [33m    to_port     = 22
+		[37m11 | [33m    protocol    = "tcp"
+		[37m12 | [33m    cidr_blocks = [var.vpc_cidr]
+		[37m13 | [33m  }
+		[37m14 | [33m
+		[37m15 | [33m  tags = {
+		[37m16 | [33m    Name = "${var.project_name}-EICE-SG"
+		[37m17 | [33m  }
+		[37m18 | [33m}
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.alb_security_group
+	File: \sg.tf:23-55
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+[0m
+		[37m23 | [33mresource "aws_security_group" "alb_security_group" {
+		[37m24 | [33m  name        = "${var.project_name}-ALB-SG"
+		[37m25 | [33m  description = "HTTP/HTTPS from internet"
+		[37m26 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m27 | [33m
+		[37m28 | [33m  ingress {
+		[37m29 | [33m    description = "HTTP"
+		[37m30 | [33m    from_port   = 80
+		[37m31 | [33m    to_port     = 80
+		[37m32 | [33m    protocol    = "tcp"
+		[37m33 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m34 | [33m  }
+		[37m35 | [33m
+		[37m36 | [33m  ingress {
+		[37m37 | [33m    description = "HTTPS"
+		[37m38 | [33m    from_port   = 443
+		[37m39 | [33m    to_port     = 443
+		[37m40 | [33m    protocol    = "tcp"
+		[37m41 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m42 | [33m  }
+		[37m43 | [33m
+		[37m44 | [33m  egress {
+		[37m45 | [33m    description = "Allow all outbound traffic"
+		[37m46 | [33m    from_port   = 0
+		[37m47 | [33m    to_port     = 0
+		[37m48 | [33m    protocol    = "-1"
+		[37m49 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m50 | [33m  }
+		[37m51 | [33m
+		[37m52 | [33m  tags = {
+		[37m53 | [33m    Name = "${var.project_name}-ALB-SG"
+		[37m54 | [33m  }
+		[37m55 | [33m}
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.app_server_security_group
+	File: \sg.tf:59-99
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+[0m
+		[37m59 | [33mresource "aws_security_group" "app_server_security_group" {
+		[37m60 | [33m  name        = "${var.environment}-${var.project_name}-WEB-SG"
+		[37m61 | [33m  description = "HTTP/HTTPS from ALB, SSH from EICE"
+		[37m62 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m63 | [33m
+		[37m64 | [33m  ingress {
+		[37m65 | [33m    description     = "SSH from EICE"
+		[37m66 | [33m    from_port       = 22
+		[37m67 | [33m    to_port         = 22
+		[37m68 | [33m    protocol        = "tcp"
+		[37m69 | [33m    security_groups = [aws_security_group.eice_security_group.id]
+		[37m70 | [33m  }
+		[37m71 | [33m
+		[37m72 | [33m  ingress {
+		[37m73 | [33m    description     = "HTTP from ALB"
+		[37m74 | [33m    from_port       = 80
+		[37m75 | [33m    to_port         = 80
+		[37m76 | [33m    protocol        = "tcp"
+		[37m77 | [33m    security_groups = [aws_security_group.alb_security_group.id]
+		[37m78 | [33m  }
+		[37m79 | [33m
+		[37m80 | [33m  ingress {
+		[37m81 | [33m    description     = "HTTPS from ALB"
+		[37m82 | [33m    from_port       = 443
+		[37m83 | [33m    to_port         = 443
+		[37m84 | [33m    protocol        = "tcp"
+		[37m85 | [33m    security_groups = [aws_security_group.alb_security_group.id]
+		[37m86 | [33m  }
+		[37m87 | [33m
+		[37m88 | [33m  egress {
+		[37m89 | [33m    description = "Allow all outbound traffic"
+		[37m90 | [33m    from_port   = 0
+		[37m91 | [33m    to_port     = 0
+		[37m92 | [33m    protocol    = "-1"
+		[37m93 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m94 | [33m  }
+		[37m95 | [33m
+		[37m96 | [33m  tags = {
+		[37m97 | [33m    Name = "${var.project_name}-AppServ-SG"
+		[37m98 | [33m  }
+		[37m99 | [33m}
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.db_migrate_server_security_group
+	File: \sg.tf:104-128
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+[0m
+		[37m104 | [33mresource "aws_security_group" "db_migrate_server_security_group" {
+		[37m105 | [33m  name        = "${var.project_name}-DB-Migrate-Server-SG"
+		[37m106 | [33m  description = "SSH from EICE"
+		[37m107 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m108 | [33m
+		[37m109 | [33m  ingress {
+		[37m110 | [33m    description     = "SSH from EICE"
+		[37m111 | [33m    from_port       = 22
+		[37m112 | [33m    to_port         = 22
+		[37m113 | [33m    protocol        = "tcp"
+		[37m114 | [33m    security_groups = [aws_security_group.eice_security_group.id]
+		[37m115 | [33m  }
+		[37m116 | [33m
+		[37m117 | [33m  egress {
+		[37m118 | [33m    description = "Allow all outbound traffic"
+		[37m119 | [33m    from_port   = 0
+		[37m120 | [33m    to_port     = 0
+		[37m121 | [33m    protocol    = "-1"
+		[37m122 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m123 | [33m  }
+		[37m124 | [33m
+		[37m125 | [33m  tags = {
+		[37m126 | [33m    Name = "${var.project_name}-MigServ-SG"
+		[37m127 | [33m  }
+		[37m128 | [33m}
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.database_security_group
+	File: \sg.tf:133-165
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+[0m
+		[37m133 | [33mresource "aws_security_group" "database_security_group" {
+		[37m134 | [33m  name        = "${var.project_name}-Database-SG"
+		[37m135 | [33m  description = "MySQL/Aurora from app and migration servers"
+		[37m136 | [33m  vpc_id      = aws_vpc.vpc.id
+		[37m137 | [33m
+		[37m138 | [33m  ingress {
+		[37m139 | [33m    description     = "MySQL/Aurora from app servers"
+		[37m140 | [33m    from_port       = 3306
+		[37m141 | [33m    to_port         = 3306
+		[37m142 | [33m    protocol        = "tcp"
+		[37m143 | [33m    security_groups = [aws_security_group.app_server_security_group.id]
+		[37m144 | [33m  }
+		[37m145 | [33m
+		[37m146 | [33m  ingress {
+		[37m147 | [33m    description     = "MySQL/Aurora from migration server"
+		[37m148 | [33m    from_port       = 3306
+		[37m149 | [33m    to_port         = 3306
+		[37m150 | [33m    protocol        = "tcp"
+		[37m151 | [33m    security_groups = [aws_security_group.db_migrate_server_security_group.id]
+		[37m152 | [33m  }
+		[37m153 | [33m
+		[37m154 | [33m  egress {
+		[37m155 | [33m    description = "Allow all outbound traffic"
+		[37m156 | [33m    from_port   = 0
+		[37m157 | [33m    to_port     = 0
+		[37m158 | [33m    protocol    = "-1"
+		[37m159 | [33m    cidr_blocks = ["0.0.0.0/0"]
+		[37m160 | [33m  }
+		[37m161 | [33m
+		[37m162 | [33m  tags = {
+		[37m163 | [33m    Name = "${var.project_name}-DB-SG"
+		[37m164 | [33m  }
+		[37m165 | [33m}
