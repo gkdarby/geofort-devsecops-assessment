@@ -1,0 +1,292 @@
+apiVersion: v1
+items:
+- apiVersion: wgpolicyk8s.io/v1alpha2
+  kind: PolicyReport
+  metadata:
+    creationTimestamp: "2026-08-24T19:15:54Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/managed-by: kyverno
+    name: 2b0d6fbc-806e-4763-86f5-126610c2f618
+    namespace: geofort-app
+    ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: geofortapplication-7d8bb9bf74
+      uid: 2b0d6fbc-806e-4763-86f5-126610c2f618
+    resourceVersion: "1569568"
+    uid: bf1a582b-b4e7-49b4-b0ce-0e96ec3ee720
+  results:
+  - message: 'validation error: Pods in geofort-app must run as non-root. rule autogen-require-run-as-nonroot
+      failed at path /spec/template/spec/securityContext/runAsNonRoot/'
+    policy: require-nonroot
+    properties:
+      process: background scan
+    result: fail
+    rule: autogen-require-run-as-nonroot
+    scored: true
+    source: kyverno
+    timestamp:
+      nanos: 0
+      seconds: 1787616956
+  scope:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+    name: geofortapplication-7d8bb9bf74
+    namespace: geofort-app
+    uid: 2b0d6fbc-806e-4763-86f5-126610c2f618
+  summary:
+    error: 0
+    fail: 1
+    pass: 0
+    skip: 0
+    warn: 0
+- apiVersion: wgpolicyk8s.io/v1alpha2
+  kind: PolicyReport
+  metadata:
+    creationTimestamp: "2026-08-24T19:15:54Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/managed-by: kyverno
+    name: 3c84b075-1f88-4525-ad49-751d6fa0ea6f
+    namespace: geofort-app
+    ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: geofortapplication-84664b5597
+      uid: 3c84b075-1f88-4525-ad49-751d6fa0ea6f
+    resourceVersion: "1569570"
+    uid: 03607f15-c0f4-4df4-9c42-4f7da6e15000
+  results:
+  - message: 'validation error: Pods in geofort-app must run as non-root. rule autogen-require-run-as-nonroot
+      failed at path /spec/template/spec/securityContext/runAsNonRoot/'
+    policy: require-nonroot
+    properties:
+      process: background scan
+    result: fail
+    rule: autogen-require-run-as-nonroot
+    scored: true
+    source: kyverno
+    timestamp:
+      nanos: 0
+      seconds: 1787616956
+  scope:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+    name: geofortapplication-84664b5597
+    namespace: geofort-app
+    uid: 3c84b075-1f88-4525-ad49-751d6fa0ea6f
+  summary:
+    error: 0
+    fail: 1
+    pass: 0
+    skip: 0
+    warn: 0
+- apiVersion: wgpolicyk8s.io/v1alpha2
+  kind: PolicyReport
+  metadata:
+    creationTimestamp: "2026-08-24T19:15:54Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/managed-by: kyverno
+    name: 51e17325-772e-47e0-99f0-502d89824456
+    namespace: geofort-app
+    ownerReferences:
+    - apiVersion: v1
+      kind: Pod
+      name: geofortapplication-7d8bb9bf74-vdfrb
+      uid: 51e17325-772e-47e0-99f0-502d89824456
+    resourceVersion: "1569579"
+    uid: 4a825fef-6cc5-462d-b975-aefe3343da9c
+  results:
+  - message: 'validation error: Pods in geofort-app must run as non-root. rule require-run-as-nonroot
+      failed at path /spec/securityContext/runAsNonRoot/'
+    policy: require-nonroot
+    properties:
+      process: background scan
+    result: fail
+    rule: require-run-as-nonroot
+    scored: true
+    source: kyverno
+    timestamp:
+      nanos: 0
+      seconds: 1787616956
+  scope:
+    apiVersion: v1
+    kind: Pod
+    name: geofortapplication-7d8bb9bf74-vdfrb
+    namespace: geofort-app
+    uid: 51e17325-772e-47e0-99f0-502d89824456
+  summary:
+    error: 0
+    fail: 1
+    pass: 0
+    skip: 0
+    warn: 0
+- apiVersion: wgpolicyk8s.io/v1alpha2
+  kind: PolicyReport
+  metadata:
+    creationTimestamp: "2026-08-24T19:15:54Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/managed-by: kyverno
+    name: 92aa1b8c-5a7d-4113-9337-25f8b28915fb
+    namespace: geofort-app
+    ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: geofortapplication-6b7d6879c5
+      uid: 92aa1b8c-5a7d-4113-9337-25f8b28915fb
+    resourceVersion: "1569572"
+    uid: 6e7820ca-60e4-49a9-9562-981353e680b6
+  results:
+  - message: 'validation error: Pods in geofort-app must run as non-root. rule autogen-require-run-as-nonroot
+      failed at path /spec/template/spec/securityContext/runAsNonRoot/'
+    policy: require-nonroot
+    properties:
+      process: background scan
+    result: fail
+    rule: autogen-require-run-as-nonroot
+    scored: true
+    source: kyverno
+    timestamp:
+      nanos: 0
+      seconds: 1787616956
+  scope:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+    name: geofortapplication-6b7d6879c5
+    namespace: geofort-app
+    uid: 92aa1b8c-5a7d-4113-9337-25f8b28915fb
+  summary:
+    error: 0
+    fail: 1
+    pass: 0
+    skip: 0
+    warn: 0
+- apiVersion: wgpolicyk8s.io/v1alpha2
+  kind: PolicyReport
+  metadata:
+    creationTimestamp: "2026-08-24T19:15:54Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/managed-by: kyverno
+    name: 99e6724a-2124-4f99-aba9-b873baecde95
+    namespace: geofort-app
+    ownerReferences:
+    - apiVersion: v1
+      kind: Pod
+      name: geofortapplication-7d8bb9bf74-n9wc8
+      uid: 99e6724a-2124-4f99-aba9-b873baecde95
+    resourceVersion: "1569574"
+    uid: 46b7e017-b87e-4d93-b77c-d989e514f203
+  results:
+  - message: 'validation error: Pods in geofort-app must run as non-root. rule require-run-as-nonroot
+      failed at path /spec/securityContext/runAsNonRoot/'
+    policy: require-nonroot
+    properties:
+      process: background scan
+    result: fail
+    rule: require-run-as-nonroot
+    scored: true
+    source: kyverno
+    timestamp:
+      nanos: 0
+      seconds: 1787616956
+  scope:
+    apiVersion: v1
+    kind: Pod
+    name: geofortapplication-7d8bb9bf74-n9wc8
+    namespace: geofort-app
+    uid: 99e6724a-2124-4f99-aba9-b873baecde95
+  summary:
+    error: 0
+    fail: 1
+    pass: 0
+    skip: 0
+    warn: 0
+- apiVersion: wgpolicyk8s.io/v1alpha2
+  kind: PolicyReport
+  metadata:
+    creationTimestamp: "2026-08-24T19:15:54Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/managed-by: kyverno
+    name: e9ab5c84-f1ea-4caa-a7c4-9a7f00683114
+    namespace: geofort-app
+    ownerReferences:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: geofortapplication
+      uid: e9ab5c84-f1ea-4caa-a7c4-9a7f00683114
+    resourceVersion: "1569564"
+    uid: 08db1617-9f5b-442b-af38-bfc292f3885e
+  results:
+  - message: 'validation error: Pods in geofort-app must run as non-root. rule autogen-require-run-as-nonroot
+      failed at path /spec/template/spec/securityContext/runAsNonRoot/'
+    policy: require-nonroot
+    properties:
+      process: background scan
+    result: fail
+    rule: autogen-require-run-as-nonroot
+    scored: true
+    source: kyverno
+    timestamp:
+      nanos: 0
+      seconds: 1787616956
+  scope:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: geofortapplication
+    namespace: geofort-app
+    uid: e9ab5c84-f1ea-4caa-a7c4-9a7f00683114
+  summary:
+    error: 0
+    fail: 1
+    pass: 0
+    skip: 0
+    warn: 0
+- apiVersion: wgpolicyk8s.io/v1alpha2
+  kind: PolicyReport
+  metadata:
+    creationTimestamp: "2026-08-24T19:15:54Z"
+    generation: 7
+    labels:
+      app.kubernetes.io/managed-by: kyverno
+    name: f3a42632-a469-4036-bfe8-72175a7c70b7
+    namespace: geofort-app
+    ownerReferences:
+    - apiVersion: apps/v1
+      kind: ReplicaSet
+      name: geofortapplication-5b75d49c5d
+      uid: f3a42632-a469-4036-bfe8-72175a7c70b7
+    resourceVersion: "1569566"
+    uid: 2c77fc5c-2430-4c70-abd2-7f7b211ac3bd
+  results:
+  - message: 'validation error: Pods in geofort-app must run as non-root. rule autogen-require-run-as-nonroot
+      failed at path /spec/template/spec/securityContext/runAsNonRoot/'
+    policy: require-nonroot
+    properties:
+      process: background scan
+    result: fail
+    rule: autogen-require-run-as-nonroot
+    scored: true
+    source: kyverno
+    timestamp:
+      nanos: 0
+      seconds: 1787616956
+  scope:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+    name: geofortapplication-5b75d49c5d
+    namespace: geofort-app
+    uid: f3a42632-a469-4036-bfe8-72175a7c70b7
+  summary:
+    error: 0
+    fail: 1
+    pass: 0
+    skip: 0
+    warn: 0
+kind: List
+metadata:
+  resourceVersion: ""

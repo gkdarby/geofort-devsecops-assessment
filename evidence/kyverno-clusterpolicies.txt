@@ -1,0 +1,3 @@
+NAME                                 ADMISSION   BACKGROUND   READY   AGE     MESSAGE
+require-nonroot                      true        true         True    5h33m   Ready
+verify-geofort-ecr-image-signature   true        false        True    68d     Ready
