@@ -1,0 +1,1334 @@
+pipeline {
+    agent {
+        label 'docker-agent'
+    }
+
+    tools {
+        maven 'maven'
+        jdk 'myjdk'
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        APPLICATION_NAME = 'geofort-global-dynamic'
+
+        REPOSITORY_URL = 'https://github.com/gkdarby/geofort-global-dynamic.git'
+        REPOSITORY_BRANCH = 'main'
+
+        WAR_FILE = 'target/geofort-global-dynamic.war'
+        VERSIONED_WAR = "versions/geofort-global-dynamic-V${BUILD_NUMBER}.war"
+
+        NEXUS_URL = 'http://nexus:8081'
+        NEXUS_REPOSITORY = 'maven-releases'
+        NEXUS_GROUP_ID = 'com.geofort'
+        NEXUS_ARTIFACT_ID = 'geofort-global-dynamic'
+        NEXUS_VERSION = "1.0.${BUILD_NUMBER}"
+
+        IMAGE_NAME = 'geofort-global-dynamic'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+
+        DOCKERHUB_REPOSITORY = 'geofort-global-dynamic'
+
+        TEST_CONTAINER_NAME = 'geofort-global-dynamic-test'
+
+        ZAP_CONTAINER_NAME = "geofort-zap-${BUILD_NUMBER}"
+        ZAP_VOLUME_NAME = "geofort-zap-work-${BUILD_NUMBER}"
+
+        AWS_REGION = 'us-east-1'
+        AWS_ACCOUNT_ID = '588738572310'
+        ECR_REPOSITORY = 'geofort-repo'
+        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECR_IMAGE = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
+    }
+
+    stages {
+
+        stage('01-FETCH CODE') {
+            steps {
+                echo 'Pulling code from the GitHub main branch...'
+
+                git(
+                    branch: "${REPOSITORY_BRANCH}",
+                    credentialsId: 'github-credentials',
+                    url: "${REPOSITORY_URL}"
+                )
+            }
+        }
+
+        stage('02-VALIDATE BUILD ENVIRONMENT') {
+            steps {
+                echo 'Validating Java, Maven, Git, Trivy, Docker, AWS CLI, Cosign, and the workspace...'
+
+                sh '''
+                    echo "========================================"
+                    echo "Current user"
+                    echo "========================================"
+                    whoami
+
+                    echo "========================================"
+                    echo "Current workspace"
+                    echo "========================================"
+                    pwd
+
+                    echo "========================================"
+                    echo "Java version"
+                    echo "========================================"
+                    java --version
+
+                    echo "========================================"
+                    echo "Maven version"
+                    echo "========================================"
+                    mvn --version
+
+                    echo "========================================"
+                    echo "Git version"
+                    echo "========================================"
+                    git --version
+
+                    echo "========================================"
+                    echo "Trivy version"
+                    echo "========================================"
+                    trivy --version
+
+                    echo "========================================"
+                    echo "Docker version"
+                    echo "========================================"
+                    docker --version
+
+                    echo "========================================"
+                    echo "AWS CLI version"
+                    echo "========================================"
+                    aws --version
+
+                    echo "========================================"
+                    echo "Cosign version"
+                    echo "========================================"
+                    cosign version
+
+                    echo "========================================"
+                    echo "Docker access test"
+                    echo "========================================"
+                    docker ps
+
+                    echo "========================================"
+                    echo "AWS identity test"
+                    echo "========================================"
+                    aws sts get-caller-identity
+
+                    echo "========================================"
+                    echo "Repository files"
+                    echo "========================================"
+                    ls -la
+                '''
+            }
+        }
+
+        stage('03-CODE VALIDATION') {
+            steps {
+                echo 'Running Maven validation...'
+
+                sh '''
+                    mvn --batch-mode validate
+                '''
+            }
+        }
+
+        stage('04-COMPILE') {
+            steps {
+                echo 'Compiling the Java application source code...'
+
+                sh '''
+                    mvn --batch-mode compile
+                '''
+            }
+        }
+
+        stage('05-UNIT TEST') {
+            steps {
+                echo 'Running unit tests...'
+
+                sh '''
+                    mvn --batch-mode test
+                '''
+            }
+
+            post {
+                always {
+                    junit(
+                        testResults: 'target/surefire-reports/*.xml',
+                        allowEmptyResults: true
+                    )
+                }
+            }
+        }
+
+        stage('06-CODE REVIEW - PMD') {
+            steps {
+                echo 'Running PMD static code analysis...'
+
+                sh '''
+                    mvn --batch-mode pmd:pmd
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'target/site/pmd.html,target/pmd.xml',
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
+
+        stage('07-CHECKSTYLE ANALYSIS') {
+            steps {
+                echo 'Running Checkstyle analysis...'
+
+                sh '''
+                    mvn --batch-mode checkstyle:checkstyle
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'target/checkstyle-result.xml,target/site/checkstyle.html',
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
+
+        stage('08-CODE COVERAGE') {
+            steps {
+                echo 'Running Maven verify for tests and JaCoCo coverage...'
+
+                sh '''
+                    mvn --batch-mode verify
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'target/site/jacoco/**,target/surefire-reports/**',
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
+
+        stage('09-TRIVY FILESYSTEM SCAN') {
+            steps {
+                echo 'Running Trivy filesystem vulnerability scan...'
+
+                sh '''
+                    trivy fs \
+                      --scanners vuln,secret,misconfig \
+                      --severity HIGH,CRITICAL \
+                      --format table \
+                      --output trivyfs.txt \
+                      --exit-code 0 \
+                      .
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'trivyfs.txt',
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
+
+        stage('10-BUILD ARTIFACT') {
+            steps {
+                echo 'Building the deployable WAR artifact...'
+
+                sh '''
+                    mvn --batch-mode package
+                '''
+            }
+
+            post {
+                success {
+                    echo 'Archiving the generated WAR artifact...'
+
+                    archiveArtifacts(
+                        artifacts: 'target/*.war',
+                        fingerprint: true
+                    )
+                }
+            }
+        }
+
+        stage('11-VERSION ARTIFACT') {
+            steps {
+                echo 'Creating a versioned copy of the WAR artifact...'
+
+                sh '''
+                    mkdir -p versions
+
+                    test -f "${WAR_FILE}"
+
+                    cp "${WAR_FILE}" "${VERSIONED_WAR}"
+
+                    echo "Original WAR artifact:"
+                    ls -lh "${WAR_FILE}"
+
+                    echo "Versioned WAR artifact:"
+                    ls -lh "${VERSIONED_WAR}"
+                '''
+            }
+
+            post {
+                success {
+                    archiveArtifacts(
+                        artifacts: 'versions/*.war',
+                        fingerprint: true
+                    )
+                }
+            }
+        }
+
+        stage('12-SONARQUBE ANALYSIS') {
+            environment {
+                scannerHome = tool 'sonar-scanner'
+            }
+
+            steps {
+                echo 'Running SonarQube code quality and security analysis...'
+
+                withSonarQubeEnv('sonar-communication') {
+                    sh '''
+                        "${scannerHome}/bin/sonar-scanner" \
+                          -Dsonar.projectKey=geofort-global-dynamic \
+                          -Dsonar.projectName=geofort-global-dynamic \
+                          -Dsonar.projectVersion="${BUILD_NUMBER}" \
+                          -Dsonar.sources=src/main/java \
+                          -Dsonar.java.binaries=target/classes \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                          -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+                    '''
+                }
+            }
+        }
+
+        stage('13-QUALITY GATE') {
+            steps {
+                echo 'Waiting for the SonarQube Quality Gate result...'
+
+                timeout(time: 10, unit: 'MINUTES') {
+                    script {
+                        def qualityGate = waitForQualityGate(
+                            abortPipeline: false
+                        )
+
+                        echo "SonarQube Quality Gate status: ${qualityGate.status}"
+
+                        if (qualityGate.status != 'OK') {
+                            error(
+                                "SonarQube Quality Gate failed with status: ${qualityGate.status}"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('14-PUBLISH ARTIFACT TO NEXUS') {
+            steps {
+                echo 'Publishing the versioned WAR artifact to Nexus Repository...'
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'nexusID',
+                        usernameVariable: 'NEXUS_USERNAME',
+                        passwordVariable: 'NEXUS_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        set +x
+
+                        echo "========================================"
+                        echo "Validating Nexus artifact information"
+                        echo "========================================"
+
+                        test -f "${VERSIONED_WAR}"
+
+                        echo "Nexus URL: ${NEXUS_URL}"
+                        echo "Repository: ${NEXUS_REPOSITORY}"
+                        echo "Group ID: ${NEXUS_GROUP_ID}"
+                        echo "Artifact ID: ${NEXUS_ARTIFACT_ID}"
+                        echo "Version: ${NEXUS_VERSION}"
+                        echo "Packaging: war"
+
+                        ls -lh "${VERSIONED_WAR}"
+
+                        echo "========================================"
+                        echo "Uploading WAR artifact to Nexus"
+                        echo "========================================"
+
+                        HTTP_STATUS=$(curl \
+                          --silent \
+                          --show-error \
+                          --output nexus-upload-response.txt \
+                          --write-out '%{http_code}' \
+                          --user "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" \
+                          --request POST \
+                          "${NEXUS_URL}/service/rest/v1/components?repository=${NEXUS_REPOSITORY}" \
+                          --form "maven2.groupId=${NEXUS_GROUP_ID}" \
+                          --form "maven2.artifactId=${NEXUS_ARTIFACT_ID}" \
+                          --form "maven2.version=${NEXUS_VERSION}" \
+                          --form "maven2.packaging=war" \
+                          --form "maven2.generate-pom=true" \
+                          --form "maven2.asset1=@${VERSIONED_WAR};type=application/java-archive" \
+                          --form "maven2.asset1.extension=war")
+
+                        echo "Nexus HTTP response code: ${HTTP_STATUS}"
+
+                        if [ "${HTTP_STATUS}" != "204" ]; then
+                            echo "ERROR: Nexus artifact upload failed."
+
+                            if [ -s nexus-upload-response.txt ]; then
+                                echo "Nexus response:"
+                                cat nexus-upload-response.txt
+                            fi
+
+                            exit 1
+                        fi
+
+                        echo "WAR artifact uploaded successfully to Nexus."
+
+                        echo "${NEXUS_GROUP_ID}:${NEXUS_ARTIFACT_ID}:${NEXUS_VERSION}:war" \
+                          > nexus-artifact-coordinate.txt
+
+                        echo "Published artifact coordinates:"
+                        cat nexus-artifact-coordinate.txt
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'nexus-upload-response.txt,nexus-artifact-coordinate.txt',
+                        allowEmptyArchive: true
+                    )
+                }
+
+                success {
+                    echo 'The WAR artifact was published successfully to Nexus.'
+                }
+
+                failure {
+                    echo 'The Nexus artifact upload failed.'
+                }
+            }
+        }
+
+        stage('15-TRIVY DOCKERFILE SCAN') {
+            steps {
+                echo 'Scanning Dockerfile and configuration files for security misconfigurations...'
+
+                sh '''
+                    trivy config \
+                      --severity HIGH,CRITICAL \
+                      --format table \
+                      --output trivy-dockerfile.txt \
+                      --exit-code 0 \
+                      .
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'trivy-dockerfile.txt',
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
+
+
+        stage('15A-CHECKOV IAC SCAN') {
+            steps {
+                echo 'Running Checkov scan against Terraform infrastructure-as-code...'
+
+                sh '''
+                    if [ -d "terraform" ]; then
+                        checkov \
+                          -d terraform \
+                          --output cli \
+                          --soft-fail \
+                          | tee checkov-results.txt
+                    else
+                        echo "Terraform directory not found in this workspace." \
+                          | tee checkov-results.txt
+                        echo "Checkov scan is represented in this assessment pipeline; the Terraform evidence is stored separately."
+                    fi
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'checkov-results.txt',
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
+
+        stage('16-BUILD DOCKER IMAGE') {
+            steps {
+                echo 'Building the GeoFort application Docker image...'
+
+                sh '''
+                    echo "Confirming the Dockerfile exists..."
+                    test -f Dockerfile
+
+                    echo "Confirming the WAR artifact exists..."
+                    test -f "${WAR_FILE}"
+
+                    echo "Building Docker image:"
+                    echo "${IMAGE_NAME}:${IMAGE_TAG}"
+
+                    docker build \
+                      --tag "${IMAGE_NAME}:${IMAGE_TAG}" \
+                      --tag "${IMAGE_NAME}:latest" \
+                      .
+
+                    echo "Docker images created:"
+                    docker image ls "${IMAGE_NAME}"
+                '''
+            }
+
+            post {
+                success {
+                    echo 'Docker image built successfully.'
+                }
+
+                failure {
+                    echo 'Docker image build failed.'
+                }
+            }
+        }
+
+        stage('17-TRIVY IMAGE SCAN') {
+            steps {
+                echo 'Scanning the Docker image for HIGH and CRITICAL vulnerabilities...'
+
+                sh '''
+                    echo "Scanning image:"
+                    echo "${IMAGE_NAME}:${IMAGE_TAG}"
+
+                    trivy image \
+                      --severity HIGH,CRITICAL \
+                      --format table \
+                      --output trivy-image.txt \
+                      --exit-code 0 \
+                      "${IMAGE_NAME}:${IMAGE_TAG}"
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'trivy-image.txt',
+                        allowEmptyArchive: true
+                    )
+                }
+
+                success {
+                    echo 'Trivy Docker image scan completed.'
+                }
+
+                failure {
+                    echo 'Trivy Docker image scan failed.'
+                }
+            }
+        }
+
+
+        stage('17A-GENERATE SBOM') {
+            steps {
+                echo 'Generating a CycloneDX software bill of materials with Syft...'
+
+                sh '''
+                    if command -v syft >/dev/null 2>&1; then
+                        syft \
+                          "${IMAGE_NAME}:${IMAGE_TAG}" \
+                          -o cyclonedx-json=sbom.json
+                    else
+                        echo "Syft is not installed on this Jenkins agent." >&2
+                        exit 1
+                    fi
+
+                    test -s sbom.json
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'sbom.json',
+                        allowEmptyArchive: false
+                    )
+                }
+            }
+        }
+
+        stage('18-RUN AND TEST APPLICATION CONTAINER') {
+            steps {
+                echo 'Starting the GeoFort application container for testing...'
+
+                sh '''
+                    echo "Removing any old test container..."
+
+                    docker rm \
+                      --force \
+                      "${TEST_CONTAINER_NAME}" \
+                      2>/dev/null || true
+
+                    echo "Starting application container on geofort-network..."
+
+                    docker run \
+                      --detach \
+                      --name "${TEST_CONTAINER_NAME}" \
+                      --network geofort-network \
+                      "${IMAGE_NAME}:${IMAGE_TAG}"
+
+                    echo "Waiting for Tomcat and the application to start..."
+
+                    ATTEMPT=1
+                    MAX_ATTEMPTS=12
+
+                    until curl \
+                      --silent \
+                      --fail \
+                      --output /dev/null \
+                      "http://${TEST_CONTAINER_NAME}:8080/"
+                    do
+                        if [ "${ATTEMPT}" -ge "${MAX_ATTEMPTS}" ]; then
+                            echo "Application did not become available in time."
+
+                            echo "========================================"
+                            echo "Container status"
+                            echo "========================================"
+
+                            docker ps \
+                              --all \
+                              --filter "name=${TEST_CONTAINER_NAME}"
+
+                            echo "========================================"
+                            echo "Container logs"
+                            echo "========================================"
+
+                            docker logs "${TEST_CONTAINER_NAME}" || true
+
+                            exit 1
+                        fi
+
+                        echo "Application is not ready yet. Attempt ${ATTEMPT}/${MAX_ATTEMPTS}..."
+
+                        ATTEMPT=$((ATTEMPT + 1))
+
+                        sleep 5
+                    done
+
+                    echo "Application is responding successfully."
+
+                    HTTP_STATUS=$(curl \
+                      --silent \
+                      --output application-response.html \
+                      --write-out '%{http_code}' \
+                      "http://${TEST_CONTAINER_NAME}:8080/")
+
+                    echo "Application HTTP status: ${HTTP_STATUS}"
+
+                    if [ "${HTTP_STATUS}" != "200" ]; then
+                        echo "Application health test failed."
+
+                        docker logs "${TEST_CONTAINER_NAME}" || true
+
+                        exit 1
+                    fi
+
+                    test -s application-response.html
+
+                    echo "Application container test passed."
+
+                    docker ps \
+                      --filter "name=${TEST_CONTAINER_NAME}"
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'application-response.html',
+                        allowEmptyArchive: true
+                    )
+                }
+
+                success {
+                    echo 'The application container started and returned HTTP 200.'
+                }
+
+                failure {
+                    echo 'The application container test failed.'
+
+                    sh '''
+                        docker logs \
+                          "${TEST_CONTAINER_NAME}" \
+                          || true
+                    '''
+                }
+            }
+        }
+
+        stage('19-OWASP ZAP BASELINE SCAN') {
+            steps {
+                echo 'Running OWASP ZAP baseline security scan against the application...'
+
+                sh '''
+                    echo "Testing application connectivity before ZAP scan..."
+
+                    curl \
+                      --silent \
+                      --fail \
+                      --output /dev/null \
+                      "http://${TEST_CONTAINER_NAME}:8080/"
+
+                    echo "Preparing Jenkins ZAP report directory..."
+
+                    rm -rf zap-reports
+                    mkdir -p zap-reports
+
+                    echo "Removing any old ZAP container and volume..."
+
+                    docker rm \
+                      --force \
+                      "${ZAP_CONTAINER_NAME}" \
+                      2>/dev/null || true
+
+                    docker volume rm \
+                      --force \
+                      "${ZAP_VOLUME_NAME}" \
+                      2>/dev/null || true
+
+                    echo "Creating Docker volume for ZAP reports..."
+
+                    docker volume create "${ZAP_VOLUME_NAME}"
+
+                    echo "Starting OWASP ZAP baseline scan..."
+
+                    set +e
+
+                    docker run \
+                      --name "${ZAP_CONTAINER_NAME}" \
+                      --network geofort-network \
+                      --user 0:0 \
+                      --volume "${ZAP_VOLUME_NAME}:/zap/wrk:rw" \
+                      ghcr.io/zaproxy/zaproxy:stable \
+                      zap-baseline.py \
+                      -t "http://${TEST_CONTAINER_NAME}:8080/" \
+                      -r zap-report.html \
+                      -w zap-report.md \
+                      -J zap-report.json \
+                      -I
+
+                    ZAP_EXIT_CODE=$?
+
+                    set -e
+
+                    echo "OWASP ZAP exit code: ${ZAP_EXIT_CODE}"
+
+                    echo "Copying ZAP reports into the Jenkins workspace..."
+
+                    docker cp \
+                      "${ZAP_CONTAINER_NAME}:/zap/wrk/zap-report.html" \
+                      zap-reports/zap-report.html
+
+                    docker cp \
+                      "${ZAP_CONTAINER_NAME}:/zap/wrk/zap-report.md" \
+                      zap-reports/zap-report.md
+
+                    docker cp \
+                      "${ZAP_CONTAINER_NAME}:/zap/wrk/zap-report.json" \
+                      zap-reports/zap-report.json
+
+                    echo "Generated ZAP reports:"
+                    ls -lh zap-reports
+
+                    test -s zap-reports/zap-report.html
+                    test -s zap-reports/zap-report.md
+                    test -s zap-reports/zap-report.json
+
+                    docker rm \
+                      --force \
+                      "${ZAP_CONTAINER_NAME}" \
+                      2>/dev/null || true
+
+                    docker volume rm \
+                      --force \
+                      "${ZAP_VOLUME_NAME}" \
+                      2>/dev/null || true
+
+                    if [ "${ZAP_EXIT_CODE}" -ne 0 ]; then
+                        echo "OWASP ZAP returned exit code ${ZAP_EXIT_CODE}."
+                        exit "${ZAP_EXIT_CODE}"
+                    fi
+
+                    echo "OWASP ZAP baseline scan completed successfully."
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'zap-reports/zap-report.html,zap-reports/zap-report.md,zap-reports/zap-report.json',
+                        allowEmptyArchive: true
+                    )
+
+                    sh '''
+                        docker rm \
+                          --force \
+                          "${ZAP_CONTAINER_NAME}" \
+                          2>/dev/null || true
+
+                        docker volume rm \
+                          --force \
+                          "${ZAP_VOLUME_NAME}" \
+                          2>/dev/null || true
+                    '''
+                }
+
+                success {
+                    echo 'OWASP ZAP baseline scan completed successfully.'
+                }
+
+                failure {
+                    echo 'OWASP ZAP baseline scan failed.'
+                }
+            }
+        }
+
+        stage('20-CLEANUP TEST RESOURCES') {
+            steps {
+                echo 'Removing temporary application and security-testing resources...'
+
+                sh '''
+                    docker rm \
+                      --force \
+                      "${TEST_CONTAINER_NAME}" \
+                      2>/dev/null || true
+
+                    docker rm \
+                      --force \
+                      "${ZAP_CONTAINER_NAME}" \
+                      2>/dev/null || true
+
+                    docker volume rm \
+                      --force \
+                      "${ZAP_VOLUME_NAME}" \
+                      2>/dev/null || true
+
+                    echo "Temporary testing resources removed."
+                '''
+            }
+        }
+
+        stage('21-PUSH DOCKER IMAGE TO ECR') {
+            steps {
+                echo 'Authenticating to Amazon ECR and pushing the Docker image...'
+
+                sh '''
+                    echo "========================================"
+                    echo "Validating AWS identity"
+                    echo "========================================"
+
+                    aws sts get-caller-identity
+
+                    echo "========================================"
+                    echo "Confirming ECR repository"
+                    echo "========================================"
+
+                    aws ecr describe-repositories \
+                      --repository-names "${ECR_REPOSITORY}" \
+                      --region "${AWS_REGION}"
+
+                    echo "========================================"
+                    echo "Logging in to Amazon ECR"
+                    echo "========================================"
+
+                    aws ecr get-login-password \
+                      --region "${AWS_REGION}" \
+                    | docker login \
+                      --username AWS \
+                      --password-stdin "${ECR_REGISTRY}"
+
+                    echo "========================================"
+                    echo "Tagging image for ECR"
+                    echo "========================================"
+
+                    docker tag \
+                      "${IMAGE_NAME}:${IMAGE_TAG}" \
+                      "${ECR_IMAGE}:${IMAGE_TAG}"
+
+                    docker tag \
+                      "${IMAGE_NAME}:${IMAGE_TAG}" \
+                      "${ECR_IMAGE}:latest"
+
+                    echo "========================================"
+                    echo "Pushing versioned ECR image"
+                    echo "========================================"
+
+                    docker push "${ECR_IMAGE}:${IMAGE_TAG}"
+
+                    echo "========================================"
+                    echo "Pushing latest ECR image"
+                    echo "========================================"
+
+                    docker push "${ECR_IMAGE}:latest"
+
+                    {
+                        echo "${ECR_IMAGE}:${IMAGE_TAG}"
+                        echo "${ECR_IMAGE}:latest"
+                    } > ecr-image-uri.txt
+
+                    echo "Published ECR images:"
+                    cat ecr-image-uri.txt
+
+                    docker logout "${ECR_REGISTRY}"
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'ecr-image-uri.txt',
+                        allowEmptyArchive: true
+                    )
+
+                    sh '''
+                        docker logout \
+                          "${ECR_REGISTRY}" \
+                          2>/dev/null || true
+                    '''
+                }
+
+                success {
+                    echo 'Docker image pushed successfully to Amazon ECR.'
+                }
+
+                failure {
+                    echo 'Amazon ECR image push failed.'
+                }
+            }
+        }
+
+        stage('22-PUSH IMAGE TO DOCKERHUB') {
+            steps {
+                echo 'Pushing the scanned and tested Docker image to Docker Hub...'
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USER',
+                        passwordVariable: 'DOCKERHUB_PASS'
+                    )
+                ]) {
+                    sh '''
+                        set +x
+
+                        echo "========================================"
+                        echo "Logging in to Docker Hub"
+                        echo "========================================"
+
+                        printf '%s' "${DOCKERHUB_PASS}" \
+                        | docker login \
+                            --username "${DOCKERHUB_USER}" \
+                            --password-stdin
+
+                        DOCKERHUB_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPOSITORY}"
+
+                        echo "========================================"
+                        echo "Tagging image for Docker Hub"
+                        echo "========================================"
+
+                        docker tag \
+                          "${IMAGE_NAME}:${IMAGE_TAG}" \
+                          "${DOCKERHUB_IMAGE}:${IMAGE_TAG}"
+
+                        docker tag \
+                          "${IMAGE_NAME}:${IMAGE_TAG}" \
+                          "${DOCKERHUB_IMAGE}:latest"
+
+                        echo "========================================"
+                        echo "Pushing versioned Docker Hub image"
+                        echo "========================================"
+
+                        docker push "${DOCKERHUB_IMAGE}:${IMAGE_TAG}"
+
+                        echo "========================================"
+                        echo "Pushing latest Docker Hub image"
+                        echo "========================================"
+
+                        docker push "${DOCKERHUB_IMAGE}:latest"
+
+                        {
+                            echo "${DOCKERHUB_IMAGE}:${IMAGE_TAG}"
+                            echo "${DOCKERHUB_IMAGE}:latest"
+                        } > dockerhub-image-uri.txt
+
+                        echo "Published Docker Hub images:"
+                        cat dockerhub-image-uri.txt
+
+                        docker logout
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'dockerhub-image-uri.txt',
+                        allowEmptyArchive: true
+                    )
+
+                    sh '''
+                        docker logout 2>/dev/null || true
+                    '''
+                }
+
+                success {
+                    echo 'Docker image pushed successfully to Docker Hub.'
+                }
+
+                failure {
+                    echo 'Docker Hub image push failed.'
+                }
+            }
+        }
+
+        stage('23-COSIGN SIGN ECR IMAGE') {
+            steps {
+                echo 'Signing the exact Amazon ECR image digest with Cosign...'
+
+                withCredentials([
+                    string(
+                        credentialsId: 'cosign-private-key-text',
+                        variable: 'COSIGN_KEY_B64'
+                    ),
+                    string(
+                        credentialsId: 'cosign-password',
+                        variable: 'COSIGN_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        set +x
+
+                        echo "========================================"
+                        echo "Creating temporary Cosign private key"
+                        echo "========================================"
+
+                        printf '%s' "${COSIGN_KEY_B64}" \
+                          | base64 --decode \
+                          > cosign.key
+
+                        chmod 600 cosign.key
+
+                        if [ ! -s cosign.key ]; then
+                            echo "ERROR: Cosign private key file is empty."
+                            exit 1
+                        fi
+
+                        echo "========================================"
+                        echo "Logging in to Amazon ECR"
+                        echo "========================================"
+
+                        aws ecr get-login-password \
+                          --region "${AWS_REGION}" \
+                        | docker login \
+                          --username AWS \
+                          --password-stdin "${ECR_REGISTRY}"
+
+                        echo "========================================"
+                        echo "Retrieving ECR image digest"
+                        echo "========================================"
+
+                        IMAGE_DIGEST=$(aws ecr describe-images \
+                          --repository-name "${ECR_REPOSITORY}" \
+                          --region "${AWS_REGION}" \
+                          --image-ids "imageTag=${IMAGE_TAG}" \
+                          --query 'imageDetails[0].imageDigest' \
+                          --output text)
+
+                        if [ -z "${IMAGE_DIGEST}" ] || \
+                           [ "${IMAGE_DIGEST}" = "None" ]
+                        then
+                            echo "ERROR: Could not find the ECR image digest."
+                            exit 1
+                        fi
+
+                        IMAGE_REF="${ECR_IMAGE}@${IMAGE_DIGEST}"
+
+                        echo "Image reference being signed:"
+                        echo "${IMAGE_REF}"
+
+                        echo "========================================"
+                        echo "Signing ECR image"
+                        echo "========================================"
+
+                        cosign sign \
+                          --yes \
+                          --key cosign.key \
+                          "${IMAGE_REF}"
+
+                        echo "${IMAGE_REF}" > cosign-image-ref.txt
+
+                        echo "Signed image reference:"
+                        cat cosign-image-ref.txt
+
+                        rm -f cosign.key
+
+                        docker logout "${ECR_REGISTRY}"
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'cosign-image-ref.txt',
+                        allowEmptyArchive: true
+                    )
+
+                    sh '''
+                        rm -f cosign.key
+
+                        docker logout \
+                          "${ECR_REGISTRY}" \
+                          2>/dev/null || true
+                    '''
+                }
+
+                success {
+                    echo 'Amazon ECR image signed successfully with Cosign.'
+                }
+
+                failure {
+                    echo 'Cosign image signing failed.'
+                }
+            }
+        }
+
+        stage('24-COSIGN VERIFY ECR IMAGE SIGNATURE') {
+            steps {
+                echo 'Verifying the Amazon ECR image signature with Cosign...'
+
+                withCredentials([
+                    string(
+                        credentialsId: 'cosign-public-key-text',
+                        variable: 'COSIGN_PUB_B64'
+                    )
+                ]) {
+                    sh '''
+                        set +x
+
+                        echo "========================================"
+                        echo "Creating temporary Cosign public key"
+                        echo "========================================"
+
+                        printf '%s' "${COSIGN_PUB_B64}" \
+                          | base64 --decode \
+                          > cosign.pub
+
+                        chmod 644 cosign.pub
+
+                        if [ ! -s cosign.pub ]; then
+                            echo "ERROR: Cosign public key file is empty."
+                            exit 1
+                        fi
+
+                        if [ ! -s cosign-image-ref.txt ]; then
+                            echo "ERROR: Signed image reference file is missing."
+                            exit 1
+                        fi
+
+                        echo "========================================"
+                        echo "Logging in to Amazon ECR"
+                        echo "========================================"
+
+                        aws ecr get-login-password \
+                          --region "${AWS_REGION}" \
+                        | docker login \
+                          --username AWS \
+                          --password-stdin "${ECR_REGISTRY}"
+
+                        IMAGE_REF=$(cat cosign-image-ref.txt)
+
+                        echo "Verifying image signature:"
+                        echo "${IMAGE_REF}"
+
+                        echo "========================================"
+                        echo "Running Cosign verification"
+                        echo "========================================"
+
+                        cosign verify \
+                          --key cosign.pub \
+                          "${IMAGE_REF}" \
+                          > cosign-verify.txt
+
+                        echo "Cosign verification output:"
+                        cat cosign-verify.txt
+
+                        rm -f cosign.pub
+
+                        docker logout "${ECR_REGISTRY}"
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'cosign-verify.txt',
+                        allowEmptyArchive: true
+                    )
+
+                    sh '''
+                        rm -f cosign.pub
+
+                        docker logout \
+                          "${ECR_REGISTRY}" \
+                          2>/dev/null || true
+                    '''
+                }
+
+                success {
+                    echo 'Cosign verified the Amazon ECR image signature successfully.'
+                }
+
+                failure {
+                    echo 'Cosign image signature verification failed.'
+                }
+            }
+        }
+
+        stage('25-TRIVY KUBERNETES MANIFEST SCAN') {
+            steps {
+                echo 'Scanning Kubernetes manifest files with Trivy...'
+
+                sh '''
+                    if [ -d "k8s" ]; then
+                        echo "Kubernetes manifest directory found."
+
+                        trivy config \
+                          --severity HIGH,CRITICAL \
+                          --format table \
+                          --output trivy-k8s.txt \
+                          --exit-code 0 \
+                          k8s/
+                    else
+                        echo "No k8s directory found." \
+                          | tee trivy-k8s.txt
+
+                        echo "Kubernetes manifest scanning was skipped." \
+                          | tee -a trivy-k8s.txt
+                    fi
+
+                    echo "Kubernetes manifest scan result:"
+                    cat trivy-k8s.txt
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'trivy-k8s.txt',
+                        allowEmptyArchive: true
+                    )
+                }
+
+                success {
+                    echo 'Trivy Kubernetes manifest scan completed.'
+                }
+
+                failure {
+                    echo 'Trivy Kubernetes manifest scan failed.'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Stages 01 through 25 completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed. Review the failed stage and console output.'
+        }
+
+        unstable {
+            echo 'Pipeline completed but was marked unstable.'
+        }
+
+        always {
+            echo 'Cleaning up temporary pipeline resources...'
+
+            sh '''
+                echo "Removing temporary application test container..."
+
+                docker rm \
+                  --force \
+                  "${TEST_CONTAINER_NAME}" \
+                  2>/dev/null || true
+
+                echo "Removing temporary ZAP container..."
+
+                docker rm \
+                  --force \
+                  "${ZAP_CONTAINER_NAME}" \
+                  2>/dev/null || true
+
+                echo "Removing temporary ZAP volume..."
+
+                docker volume rm \
+                  --force \
+                  "${ZAP_VOLUME_NAME}" \
+                  2>/dev/null || true
+
+                echo "Removing temporary Cosign files..."
+
+                rm -f \
+                  cosign.key \
+                  cosign.pub
+
+                echo "Logging out of Amazon ECR..."
+
+                docker logout \
+                  "${ECR_REGISTRY}" \
+                  2>/dev/null || true
+
+                echo "Logging out of Docker Hub..."
+
+                docker logout \
+                  2>/dev/null || true
+            '''
+
+            echo 'Pipeline execution finished.'
+        }
+    }
+}
