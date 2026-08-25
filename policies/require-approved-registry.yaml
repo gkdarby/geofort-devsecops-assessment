@@ -1,0 +1,22 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-approved-registry
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-geofort-ecr
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - geofort-app
+      validate:
+        message: "Images must come from the approved GeoFort Amazon ECR registry."
+        pattern:
+          spec:
+            containers:
+              - image: "588738572310.dkr.ecr.us-east-1.amazonaws.com/geofort-repo:*"
